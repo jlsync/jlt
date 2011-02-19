@@ -20,6 +20,15 @@
 */
 
 (function($){
+
+  // from http://jsperf.com/jquery-get-first-child/2
+  // implementation from prototype library
+  jQuery.fn.downP = function() {
+    var el = this[0] && this[0].firstChild;
+    while (el && el.nodeType != 1) el = el.nextSibling;
+    return $(el);
+  }
+
   jQuery.fn.jlt = function(source_data) {
     /*
     var settings = {
@@ -31,9 +40,9 @@
     }
     */
 
-    data_array =  $.isArray(source_data) ? source_data : [ source_data ]
+    var data_array =  $.isArray(source_data) ? source_data : [ source_data ]
     var vars;  // todo: clean up ugly closure global var
-    var newset = [];
+    var $newset = jQuery();
 
     this.each(function() {
       var $template = $(this);
@@ -69,6 +78,7 @@
           }
 
           // for each
+          // neseted jlt (foreach template only uses first child, like jlt)
           if ($e.attr('jeach')) {
             var collection = $e.attr('jeach');
             $e.removeAttr('jeach');
@@ -94,25 +104,16 @@
           $e.val(call($e.attr('jval')));
         }).removeAttr('jval');
 
-        $clone.find('[jid]').each(function(){
-          var $e = $(this);
-          $e.attr('id',call($e.attr('jid')));
-        }).removeAttr('jid');
 
-        $clone.find('[jhref]').each(function(){
-          var $e = $(this);
-          $e.attr('href',call($e.attr('jhref')));
-        }).removeAttr('jhref');
+        var attrs = [ 'jid', 'jhref', 'jaction', 'jsrc' ];
+        for (var i = 0, length = attrs.length ; i < length; i++ ) {
+          var attr_i = attrs[i]; 
 
-        $clone.find('[jaction]').each(function(){
-          var $e = $(this);
-          $e.attr('action',call($e.attr('jaction')));
-        }).removeAttr('jaction');
-
-        $clone.find('[jsrc]').each(function(){
-          var $e = $(this);
-          $e.attr('src',call($e.attr('jsrc')));
-        }).removeAttr('jsrc');
+          $clone.find('[' + attr_i + ']').each(function(){
+            var $e = $(this);
+            $e.attr( attr_i.replace('j','')  , call($e.attr(attr_i)));
+          }).removeAttr(attr_i);
+        }
 
         $clone.find('[jclass]').each(function(){
           var $e = $(this);
@@ -138,13 +139,12 @@
           $e.attr(attr, call(segments.join('.')));
         }).removeAttr('jattr');
 
-        $clone.children().each(function(){
-          newset.push(this);
-        })
+        $newset = $newset.after($clone.children()).clone();
+
       });
     });
 
-    return $(newset);
+    return $newset;
 
     function call(string) {
       var result = null;
