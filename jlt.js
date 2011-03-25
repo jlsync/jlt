@@ -59,7 +59,7 @@
 
           // if
           if ($e.attr('jif')) {
-            if ( ! call($e.attr('jif'))) {
+            if ( ! jcalc($e.attr('jif'))) {
               $e.remove();
               continue;
             } else {
@@ -69,7 +69,7 @@
 
           // not if
           if ($e.attr('jnif')) {
-            if ( call($e.attr('jnif'))) {
+            if ( jcalc($e.attr('jnif'))) {
               $e.remove();
               continue;
             } else {
@@ -82,7 +82,7 @@
           if ($e.attr('jeach')) {
             var collection = $e.attr('jeach');
             $e.removeAttr('jeach');
-            $e.replaceWith( $e.jlt(call(collection)) );
+            $e.replaceWith( $e.jlt(jcalc(collection)) );
           }
 
         };
@@ -91,17 +91,17 @@
         // now process these content changing directives
         $clone.find('[jtext]').each(function(){
           var $e = $(this);
-          $e.text(call($e.attr('jtext')));
+          $e.text(jcalc($e.attr('jtext')));
         }).removeAttr('jtext');
 
         $clone.find('[jhtml]').each(function(){
           var $e = $(this);
-          $e.append(call($e.attr('jhtml')));
+          $e.append(jcalc($e.attr('jhtml')));
         }).removeAttr('jhtml');
 
         $clone.find('[jval]').each(function(){
           var $e = $(this);
-          $e.val(call($e.attr('jval')));
+          $e.val(jcalc($e.attr('jval')));
         }).removeAttr('jval');
 
 
@@ -111,24 +111,24 @@
 
           $clone.find('[' + attr_i + ']').each(function(){
             var $e = $(this);
-            $e.attr( attr_i.replace('j','')  , call($e.attr(attr_i)));
+            $e.attr( attr_i.replace('j','')  , jcalc($e.attr(attr_i)));
           }).removeAttr(attr_i);
         }
 
         $clone.find('[jclass]').each(function(){
           var $e = $(this);
-          $e.addClass(call($e.attr('jclass')));
+          $e.addClass(jcalc($e.attr('jclass')));
         }).removeAttr('jclass');
 
         $clone.find('[jclass2]').each(function(){
           var $e = $(this);
-          $e.addClass(call($e.attr('jclass2')));
+          $e.addClass(jcalc($e.attr('jclass2')));
         }).removeAttr('jclass2');
 
         // e.g. :jdata => 'employee'  ->  .data('employee', employee)
         $clone.find('[jdata]').each(function(){
           var $e = $(this);
-          $e.data($e.attr('jdata'),call($e.attr('jdata')));
+          $e.data($e.attr('jdata'),jcalc($e.attr('jdata')));
         }).removeAttr('jdata');
 
         // e.g. <div jattr=data-user_id.user.id> -> <div data-user_id="2">
@@ -136,7 +136,7 @@
           var $e = $(this);
           var segments = $e.attr('jattr').split(/\./);
           var attr = segments.shift();
-          $e.attr(attr, call(segments.join('.')));
+          $e.attr(attr, jcalc(segments.join('.')));
         }).removeAttr('jattr');
 
         $newset = $newset.after($clone.children()).clone();
@@ -146,15 +146,26 @@
 
     return $newset;
 
-    function call(string) {
+    function jcalc(string) {
+      var embedded;
+
+      embedded = string.match(/{{([^{]+)}}/g);
+      if ( ! embedded ) {
+        return jcall(string);
+      } else {
+        var command, result = new String(string);
+
+        for(var i = 0, length = embedded.length; i < length; i++ ) {
+          var command = embedded[i].match(/{{(.+)}}/)[1];
+          var xresult = jcall(command);
+          result = result.replace(embedded[i], xresult);
+        }
+        return result;
+      }
+    }
+
+    function jcall(command) {
       var result = null;
-      var command, embedded;
-
-
-      command = (embedded = string.match(/{{(.+)}}/) ) ? embedded[1] : string;
-
-      // todo: should I just be using eval( ) here instead?
-      
       var segments = command.split(/\./);
       var first = segments.shift();
       if ( typeof vars[first] === 'function' ) {
@@ -170,7 +181,7 @@
         }
       }
 
-      return (embedded) ? string.replace(/{{.+}}/,result) : result ;
+      return result;
     }
 
   };
