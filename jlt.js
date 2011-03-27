@@ -52,7 +52,6 @@
         vars = this;
         var $clone = $template.clone();
 
-
         var $e;
         // process these structure changing directives first
         while ( ( $e = $clone.find('[jif],[jnif],[jeach]').first() )[0] ) {
@@ -139,7 +138,7 @@
           $e.attr(attr, jcalc(segments.join('.')));
         }).removeAttr('jattr');
 
-        $newset = $newset.after($clone.children()).clone();
+        $newset = $newset.add($clone.children());
 
       });
     });
