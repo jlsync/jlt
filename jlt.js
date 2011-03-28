@@ -42,7 +42,7 @@
 
     var data_array =  $.isArray(source_data) ? source_data : [ source_data ]
     var vars;  // todo: clean up ugly closure global var
-    var $newset = jQuery();
+    var $newset = jQuery('<div/>');
 
     this.each(function() {
       var $template = $(this);
@@ -138,12 +138,12 @@
           $e.attr(attr, jcalc(segments.join('.')));
         }).removeAttr('jattr');
 
-        $newset = $newset.add($clone.children());
+        $newset.append($clone.children());
 
       });
     });
 
-    return $newset;
+    return $newset.children();
 
     function jcalc(string) {
       var embedded;
