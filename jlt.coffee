@@ -27,14 +27,10 @@ jcalc = (vars, string) ->
     jcall vars, string
   else
     result = new String(string)
-    i = 0
-    length = embedded.length
-    
-    while i < length
-      command = embedded[i].match(/{{(.+)}}/)[1]
+    for em in embedded
+      command = em.match(/{{(.+)}}/)[1]
       xresult = jcall(vars, command)
-      result = result.replace(embedded[i], xresult)
-      i++
+      result = result.replace(em, xresult)
     result
 
 jcall = (vars, command) ->

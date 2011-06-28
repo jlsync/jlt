@@ -1,4 +1,4 @@
-/* DO NOT MODIFY. This file was compiled Tue, 28 Jun 2011 10:12:16 GMT from
+/* DO NOT MODIFY. This file was compiled Tue, 28 Jun 2011 10:31:41 GMT from
  * /Users/jason/work/fun/app/scripts/jlt.coffee
  */
 
@@ -6,19 +6,17 @@
   var $, jcalc, jcall;
   $ = jQuery;
   jcalc = function(vars, string) {
-    var command, embedded, i, length, result, xresult;
+    var command, em, embedded, result, xresult, _i, _len;
     embedded = string.match(/{{([^{]+)}}/g);
     if (!embedded) {
       return jcall(vars, string);
     } else {
       result = new String(string);
-      i = 0;
-      length = embedded.length;
-      while (i < length) {
-        command = embedded[i].match(/{{(.+)}}/)[1];
+      for (_i = 0, _len = embedded.length; _i < _len; _i++) {
+        em = embedded[_i];
+        command = em.match(/{{(.+)}}/)[1];
         xresult = jcall(vars, command);
-        result = result.replace(embedded[i], xresult);
-        i++;
+        result = result.replace(em, xresult);
       }
       return result;
     }
